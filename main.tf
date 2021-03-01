@@ -27,6 +27,7 @@ locals {
     resource_group_name      = azurerm_resource_group.arcdemo.name
     location                 = azurerm_resource_group.arcdemo.location
   }
+  uniq = substr(sha1(azurerm_resource_group.arcresources.id), 0, 8)
 }
 
 // Resource groups
@@ -133,6 +134,21 @@ resource "azurerm_network_security_rule" "rdp" {
   destination_port_range                     = "3389"
 }
 
+resource "azurerm_network_security_rule" "winrm" {
+  resource_group_name         = azurerm_resource_group.arcresources.name
+  network_security_group_name = azurerm_network_security_group.arc.name
+
+  name                                       = "WinRm"
+  priority                                   = 1002
+  direction                                  = "Inbound"
+  access                                     = "Allow"
+  protocol                                   = "Tcp"
+  source_address_prefix                      = "*"
+  source_port_range                          = "*"
+  destination_application_security_group_ids = [azurerm_application_security_group.windows.id]
+  destination_port_ranges                    = ["5985", "5986"]
+}
+
 resource "azurerm_virtual_network" "arc" {
   name                = "arc-demo-vnet"
   address_space       = ["10.0.0.0/16"]
@@ -157,12 +173,15 @@ resource "azurerm_subnet_network_security_group_association" "arc" {
 module "linux_vms" {
   source              = "./linux"
   resource_group_name = azurerm_resource_group.arcresources.name
-  location            = azurerm_resource_group.arcresources.name
+  location            = azurerm_resource_group.arcresources.location
   tags                = var.tags
 
-  for_each  = toset(var.linux_vm_names)
+  for_each = toset(var.linux_vm_names)
+
   name      = each.value
+  dns_label = "arclinuxvm-${local.uniq}-${each.value}"
   subnet_id = azurerm_subnet.arc.id
   asg_id    = azurerm_application_security_group.linux.id
-  arc       = local.arc
+
+  arc = local.arc
 }

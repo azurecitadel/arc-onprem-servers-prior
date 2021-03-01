@@ -37,8 +37,9 @@ variable "admin_username" {
   default = "arcdemo"
 }
 
-variable "admin_ssh_key_file" {
-  default = "~/.ssh/id_rsa.pub"
+variable "admin_password" {
+  type      = string
+  sensitive = true
 }
 
 variable "dns_label" {
@@ -75,6 +76,6 @@ variable "arctags" {
   type        = map(any)
   default = {
     platform = "arcdemo"
-    os       = "linux"
+    os       = "windows"
   }
 }

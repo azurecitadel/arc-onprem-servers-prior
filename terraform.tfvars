@@ -1,1 +1,2 @@
-linux_vm_names = [ "linux1", "linux2", "linux3", "linux4", "linux5" ]
+linux_vm_names = []
+windows_vm_names = [ "windows1" ]

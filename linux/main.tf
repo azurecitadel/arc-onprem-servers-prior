@@ -8,12 +8,22 @@ terraform {
 }
 
 locals {
-  uniq      = substr(sha1(data.azurerm_resource_group.arc.id), 0, 8)
-  dns_label = var.dns_label_prefix != "" ? "${var.dns_label_prefix}-${var.name}" : "arclinuxvm-${local.uniq}-${var.name}"
-}
+  // set boolean if arc has been set
+  azcmagent_connect = var.arc == {
+    tenant_id                = null
+    subscription_id          = null
+    service_principal_appid  = null
+    service_principal_secret = null
+    resource_group_name      = null
+    location                 = null
+  } ? false : true
 
-data "azurerm_resource_group" "arc" {
-  name = var.resource_group_name
+  // Convert map of tags to string to comma delimited key=value pairs. SPaces will be converted to underscores.
+  arc_tag_value_string = join(",", [for key, value in var.arctags:
+    "${replace(key, " ", "_")}=${replace(value, " ", "_")}" ])
+
+  # Merge the arc object with the new comma delimited tags, if we're connecting
+  arc = local.azcmagent_connect ? merge(var.arc, { tags = local.arc_tag_value_string}) : null
 }
 
 data "template_cloudinit_config" "multipart" {
@@ -41,24 +51,24 @@ data "template_cloudinit_config" "multipart" {
   part {
     filename     = "connect_azcmagent"
     content_type = "text/cloud-config"
-    content      = templatefile("${path.module}/cloud_init/azcmagent_connect.yaml", merge({hostname = var.name}, var.arc))
+    content      = templatefile("${path.module}/cloud_init/azcmagent_connect.yaml", local.arc)
   }
 }
 
 resource "azurerm_public_ip" "arc" {
   name                = "${var.name}-pip"
-  resource_group_name = data.azurerm_resource_group.arc.name
-  location            = data.azurerm_resource_group.arc.location
+  resource_group_name = var.resource_group_name
+  location            = var.location
   tags                = var.tags
 
   allocation_method = "Static"
-  domain_name_label = local.dns_label
+  domain_name_label = var.dns_label
 }
 
 resource "azurerm_network_interface" "arc" {
   name                = "${var.name}-nic"
-  resource_group_name = data.azurerm_resource_group.arc.name
-  location            = data.azurerm_resource_group.arc.location
+  resource_group_name = var.resource_group_name
+  location            = var.location
   tags                = var.tags
 
   ip_configuration {
@@ -76,8 +86,8 @@ resource "azurerm_network_interface_application_security_group_association" "arc
 
 resource "azurerm_linux_virtual_machine" "arc" {
   name                = var.name
-  resource_group_name = data.azurerm_resource_group.arc.name
-  location            = data.azurerm_resource_group.arc.location
+  resource_group_name = var.resource_group_name
+  location            = var.location
   tags                = var.tags
 
   admin_username                  = var.admin_username
@@ -100,7 +110,6 @@ resource "azurerm_linux_virtual_machine" "arc" {
   }
 
   // custom_data = filebase64("${path.module}/example_cloud_init")
-
   // custom_data = base64encode(templatefile("${path.module}/azure_arc_cloud_init.tpl", { hostname = var.name }))
   custom_data = base64encode(data.template_cloudinit_config.multipart.rendered)
 
