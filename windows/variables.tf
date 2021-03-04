@@ -48,6 +48,18 @@ variable "dns_label" {
   description = "Shortname for the public IP's FQDN."
 }
 
+/* Not yet implemented
+variable "generate_rdp_files" {
+  type    = bool
+  default = false
+}
+
+Example file:
+full address:s:arcwinvm-f7a1d2eb-win1.uksouth.cloudapp.azure.com:3389
+prompt for credentials:i:1
+administrative session:i:1
+*/
+
 //=============================================================
 
 variable "arc" {

@@ -1,5 +1,0 @@
-name = "whatever"
-subnet_id = "/subscriptions/2ca40be1-7e80-4f2b-92f7-06b2123a68cc/resourceGroups/arc-demo-resources/providers/Microsoft.Network/virtualNetworks/arc-demo-vnet/subnets/arc-demo-subnet"
-asg_id = "/subscriptions/2ca40be1-7e80-4f2b-92f7-06b2123a68cc/resourceGroups/arc-demo-resources/providers/Microsoft.Network/applicationSecurityGroups/arc-demo-windows-asg"
-resource_group_name = "arc-win-test"
-admin_password = "Witty-Catfish!"

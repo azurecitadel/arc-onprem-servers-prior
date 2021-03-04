@@ -28,6 +28,10 @@ locals {
     location                 = azurerm_resource_group.arcdemo.location
   }
   uniq = substr(sha1(azurerm_resource_group.arcresources.id), 0, 8)
+
+  linux_vm_names         = var.linux_vm_names
+  windows_vm_names       = var.windows_vm_names
+  windows_admin_password = format("%s!", title(random_pet.arc.id))
 }
 
 // Resource groups
@@ -58,7 +62,12 @@ resource "azuread_service_principal" "arc" {
   application_id = azuread_application.arc.application_id
 }
 
-resource "random_pet" "arc" {}
+resource "random_pet" "arc" {
+  length = 3
+  keepers = {
+    resource_group_id = azurerm_resource_group.arcresources.id
+  }
+}
 
 resource "random_password" "arc" {
   length           = 16
@@ -149,6 +158,21 @@ resource "azurerm_network_security_rule" "winrm" {
   destination_port_ranges                    = ["5985", "5986"]
 }
 
+resource "azurerm_network_security_rule" "nginx" {
+  resource_group_name         = azurerm_resource_group.arcresources.name
+  network_security_group_name = azurerm_network_security_group.arc.name
+
+  name                                       = "NginX"
+  priority                                   = 1003
+  direction                                  = "Inbound"
+  access                                     = "Allow"
+  protocol                                   = "Tcp"
+  source_address_prefix                      = "*"
+  source_port_range                          = "*"
+  destination_application_security_group_ids = [azurerm_application_security_group.linux.id]
+  destination_port_ranges                    = ["80", "443"]
+}
+
 resource "azurerm_virtual_network" "arc" {
   name                = "arc-demo-vnet"
   address_space       = ["10.0.0.0/16"]
@@ -176,12 +200,29 @@ module "linux_vms" {
   location            = azurerm_resource_group.arcresources.location
   tags                = var.tags
 
-  for_each = toset(var.linux_vm_names)
+  for_each = toset(local.linux_vm_names)
 
   name      = each.value
   dns_label = "arclinuxvm-${local.uniq}-${each.value}"
   subnet_id = azurerm_subnet.arc.id
   asg_id    = azurerm_application_security_group.linux.id
+
+  arc = local.arc
+}
+
+module "windows_vms" {
+  source              = "./windows"
+  resource_group_name = azurerm_resource_group.arcresources.name
+  location            = azurerm_resource_group.arcresources.location
+  tags                = var.tags
+
+  for_each = toset(local.windows_vm_names)
+
+  name           = each.value
+  dns_label      = "arcwinvm-${local.uniq}-${each.value}"
+  subnet_id      = azurerm_subnet.arc.id
+  asg_id         = azurerm_application_security_group.windows.id
+  admin_password = local.windows_admin_password
 
   arc = local.arc
 }

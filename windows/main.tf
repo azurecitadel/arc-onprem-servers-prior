@@ -24,9 +24,6 @@ locals {
 
   # Merge the arc object with the new comma delimited tags, if we're connecting
   arc = local.azcmagent_connect ? merge(var.arc, { tags = local.arc_tag_value_string }) : null
-
-  # List of PowerShell scripts to upload and execute
-  files = [ "./files/test.ps1" ]
 }
 
 resource "azurerm_public_ip" "arc" {
@@ -88,7 +85,7 @@ resource "azurerm_windows_virtual_machine" "arc" {
   allow_extension_operations = false
 
   # Upload winrm PowerShell script via the custom data
-  custom_data                = filebase64("./files/winrm.ps1")
+  custom_data = filebase64("${path.module}/files/winrm.ps1")
 
   # Set up winrm listener on http, or port 5985.
   # Can also add an https listener on port 5986, but needs a cert in Azure Key Vault.
@@ -105,7 +102,7 @@ resource "azurerm_windows_virtual_machine" "arc" {
   # Create C:\Terraform, copies custom data  PowerShell script into there and executes it to configure WinRM
   additional_unattend_content {
     setting = "FirstLogonCommands"
-    content = file("./files/FirstLogonCommands.xml")
+    content = file("${path.module}/files/FirstLogonCommands.xml")
   }
 
   connection {
@@ -127,14 +124,16 @@ resource "azurerm_windows_virtual_machine" "arc" {
     ]
   }
 
+  /*  Retaining these in case we want to add booleans to a) download azcmagent and b) connect
   provisioner "file" {
-    source      = "files/test.ps1"
-    destination = "c:/Terraform/test.ps1"
+    source      = "./files/test.ps1"
+    destination = "C:/Terraform/test.ps1"
   }
 
   provisioner "remote-exec" {
     inline = [
-      "PowerShell.exe -ExecutionPolicy Bypass c:\\Terraform\\test.ps1",
+      "PowerShell.exe -ExecutionPolicy Bypass C:\\Terraform\\test.ps1",
     ]
   }
+  */
 }
