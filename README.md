@@ -29,7 +29,7 @@ The provisioned servers are customised to remove the Azure Agent and to block th
 1. Login
 
     Login to Azure and check you are in the correct subscription context.
-    
+
     ```bash
     az login
     ```
@@ -39,25 +39,25 @@ The provisioned servers are customised to remove the Azure Agent and to block th
    ```bash
    git clone https://github.com/azurecitadel/arc-onprem-servers/
    ```
-  
+
 1. Directory
 
     Change directory to the root module.
-    
+
     ```bash
     cd arc-onprem-servers
     ```
-    
+
 1. Edit terraform.tfvars
 
     Modify the terraform.tfvars as required. The default will create one VM of each type.
-    
+
     Additional variables are defined in variables.tf with sensible defaults.
-    
+
 1. Deploy
 
     Run through the standard Terraform workflow.
-    
+
     ```bash
     terraform init
     terraform validate
@@ -76,5 +76,5 @@ To remove the resources:
 ```bash
 terraform destroy
 ```
-    
+
 > **Note that this will remove the arc-demo resource group and therefore any resources within that resource group (such as connected machine resources) will also be deleted.**
