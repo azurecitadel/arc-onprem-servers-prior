@@ -84,8 +84,8 @@ resource "azurerm_windows_virtual_machine" "arc" {
   provision_vm_agent         = false
   allow_extension_operations = false
 
-  # Upload winrm PowerShell script via the custom data
-  custom_data = filebase64("${path.module}/files/winrm.ps1")
+  # Upload winrm PowerShell script via the custom data - enables winrm and blocks IMDS
+  custom_data = filebase64("${path.module}/files/winrm_imds.ps1")
 
   # Set up winrm listener on http, or port 5985.
   # Can also add an https listener on port 5986, but needs a cert in Azure Key Vault.
@@ -116,17 +116,15 @@ resource "azurerm_windows_virtual_machine" "arc" {
     timeout  = "15m"
   }
 
-  ## Block the internal IMDS endpoint. Needed for Azure Arc agent installation
   provisioner "remote-exec" {
     on_failure = continue
     inline = [
-      "PowerShell.exe -ExecutionPolicy Bypass New-NetFirewallRule -Name BlockAzureIMDS -DisplayName \"Block access to Azure IMDS\" -Enabled True -Profile Any -Direction Outbound -Action Block -RemoteAddress 169.254.169.254",
+      "PowerShell.exe -ExecutionPolicy Bypass Write-Host \"Inline PowerShell command\"",
     ]
   }
 
-  /*  Retaining these in case we want to add booleans to a) download azcmagent and b) connect
   provisioner "file" {
-    source      = "./files/test.ps1"
+    source      = "${path.module}/files/test.ps1"
     destination = "C:/Terraform/test.ps1"
   }
 
@@ -135,5 +133,4 @@ resource "azurerm_windows_virtual_machine" "arc" {
       "PowerShell.exe -ExecutionPolicy Bypass C:\\Terraform\\test.ps1",
     ]
   }
-  */
 }
