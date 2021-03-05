@@ -42,6 +42,7 @@ data "template_cloudinit_config" "multipart" {
     content      = templatefile("${path.module}/cloud_init/azure_agent_imds.tpl", { hostname = var.name })
   }
 
+  /*
   part {
     filename     = "install_azcmagent"
     content_type = "text/cloud-config"
@@ -53,6 +54,7 @@ data "template_cloudinit_config" "multipart" {
     content_type = "text/cloud-config"
     content      = templatefile("${path.module}/cloud_init/azcmagent_connect.yaml", local.arc)
   }
+  */
 }
 
 resource "azurerm_public_ip" "arc" {
