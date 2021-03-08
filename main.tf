@@ -19,33 +19,44 @@ data "azurerm_subscription" "current" {}
 data "azurerm_client_config" "current" {}
 
 locals {
+  /*
   arc = {
     tenant_id                = data.azurerm_subscription.current.tenant_id
     subscription_id          = data.azurerm_subscription.current.subscription_id
     service_principal_appid  = azuread_service_principal.arc.application_id
     service_principal_secret = random_password.arc.result
-    resource_group_name      = azurerm_resource_group.arcdemo.name
-    location                 = azurerm_resource_group.arcdemo.location
+    resource_group_name      = azurerm_resource_group.arc.name
+    location                 = azurerm_resource_group.arc.location
   }
+  */
+
   uniq = substr(sha1(azurerm_resource_group.arcresources.id), 0, 8)
 
-  linux_vm_names         = var.linux_vm_names
-  windows_vm_names       = var.windows_vm_names
+  linux_vm_names = length(var.linux_vm_names) > 0 ? var.linux_vm_names : [for n in range(var.linux_count) :
+    format("%s-%02d", var.linux_prefix, n + 1)
+  ]
+
+  windows_vm_names       = length(var.windows_vm_names) > 0 ? var.windows_vm_names : [for n in range(var.windows_count) :
+    format("%s-%02d", var.windows_prefix, n + 1)
+  ]
+
   windows_admin_password = format("%s!", title(random_pet.arc.id))
 }
 
 // Resource groups
 
-resource "azurerm_resource_group" "arcdemo" {
+resource "azurerm_resource_group" "arc" {
   name     = var.resource_group_name
   location = var.location
 }
 
+/*
 resource "azurerm_role_assignment" "arc" {
   role_definition_name = "Azure Connected Machine Onboarding"
   principal_id         = azuread_service_principal.arc.id
-  scope                = azurerm_resource_group.arcdemo.id
+  scope                = azurerm_resource_group.arc.id
 }
+*/
 
 resource "azurerm_resource_group" "arcresources" {
   name     = "${var.resource_group_name}-resources"
@@ -54,6 +65,7 @@ resource "azurerm_resource_group" "arcresources" {
 
 // Onboarding service principal
 
+/*
 resource "azuread_application" "arc" {
   display_name = "arc-${data.azurerm_subscription.current.subscription_id}"
 }
@@ -61,14 +73,16 @@ resource "azuread_application" "arc" {
 resource "azuread_service_principal" "arc" {
   application_id = azuread_application.arc.application_id
 }
+*/
 
 resource "random_pet" "arc" {
-  length = 3
+  length = 2
   keepers = {
     resource_group_id = azurerm_resource_group.arcresources.id
   }
 }
 
+/*
 resource "random_password" "arc" {
   length           = 16
   special          = true
@@ -92,23 +106,24 @@ resource "azuread_service_principal_password" "arc" {
     command = "sleep 30"
   }
 }
+*/
 
 // Networking
 
 resource "azurerm_application_security_group" "linux" {
-  name                = "arc-demo-linux-asg"
+  name                = "arc-hack-linux-asg"
   location            = azurerm_resource_group.arcresources.location
   resource_group_name = azurerm_resource_group.arcresources.name
 }
 
 resource "azurerm_application_security_group" "windows" {
-  name                = "arc-demo-windows-asg"
+  name                = "arc-hack-windows-asg"
   location            = azurerm_resource_group.arcresources.location
   resource_group_name = azurerm_resource_group.arcresources.name
 }
 
 resource "azurerm_network_security_group" "arc" {
-  name                = "arc-demo-nsg"
+  name                = "arc-hack-nsg"
   location            = azurerm_resource_group.arcresources.location
   resource_group_name = azurerm_resource_group.arcresources.name
 }
@@ -174,14 +189,14 @@ resource "azurerm_network_security_rule" "nginx" {
 }
 
 resource "azurerm_virtual_network" "arc" {
-  name                = "arc-demo-vnet"
+  name                = "arc-hack-vnet"
   address_space       = ["10.0.0.0/16"]
   location            = azurerm_resource_group.arcresources.location
   resource_group_name = azurerm_resource_group.arcresources.name
 }
 
 resource "azurerm_subnet" "arc" {
-  name                 = "arc-demo-subnet"
+  name                 = "arc-hack-subnet"
   resource_group_name  = azurerm_resource_group.arcresources.name
   virtual_network_name = azurerm_virtual_network.arc.name
   address_prefixes     = ["10.0.1.0/24"]
@@ -203,11 +218,11 @@ module "linux_vms" {
   for_each = toset(local.linux_vm_names)
 
   name      = each.value
-  dns_label = "arclinuxvm-${local.uniq}-${each.value}"
+  dns_label = "arc-${local.uniq}-${each.value}"
   subnet_id = azurerm_subnet.arc.id
   asg_id    = azurerm_application_security_group.linux.id
 
-  arc = local.arc
+  // arc = local.arc
 }
 
 module "windows_vms" {
@@ -219,10 +234,10 @@ module "windows_vms" {
   for_each = toset(local.windows_vm_names)
 
   name           = each.value
-  dns_label      = "arcwinvm-${local.uniq}-${each.value}"
+  dns_label      = "arc-${local.uniq}-${each.value}"
   subnet_id      = azurerm_subnet.arc.id
   asg_id         = azurerm_application_security_group.windows.id
   admin_password = local.windows_admin_password
 
-  arc = local.arc
+  // arc = local.arc
 }

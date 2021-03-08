@@ -3,15 +3,40 @@ variable "linux_vm_names" {
   default = []
 }
 
+variable "linux_prefix" {
+  type    = string
+  default = "ubuntu"
+}
+
+variable "linux_count" {
+  type    = number
+  default = 0
+}
+
 variable "windows_vm_names" {
   type    = list(string)
   default = []
 }
 
+variable "windows_prefix" {
+  type    = string
+  default = "win"
+}
+
+variable "windows_count" {
+  type    = number
+  default = 0
+}
+
+variable "create_ansible_hosts" {
+  type    = bool
+  default = false
+}
+
 //========================================
 
 variable "resource_group_name" {
-  default = "arc-demo"
+  default = "arc-hack"
 }
 
 variable "location" {
@@ -21,4 +46,9 @@ variable "location" {
 variable "tags" {
   type    = map(string)
   default = {}
+}
+
+variable "admin_username" {
+  type    = string
+  default = "arcadmin"
 }

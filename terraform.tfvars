@@ -1,2 +1,5 @@
-linux_vm_names = [ "linux1" ]
-windows_vm_names = [ "win1" ]
+linux_count  = 1
+linux_prefix = "ubuntu"
+
+windows_count  = 1
+windows_prefix = "win"

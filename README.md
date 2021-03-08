@@ -8,17 +8,17 @@ The repo will deploy two resource groups:
 
 | Resource Group | Description |
 |---|---|
-| arc-demo | Empty, ready for your connected machines |
-| arc-demo-resources | Resources for the "on prem" servers |
+| arc-hack | Empty, ready for your connected machines |
+| arc-hack-resources | Resources for the "on prem" servers |
 
-These default names may be overriden.
+These default names may be overridden.
 
 Operating systems available:
 
 | OS | Admin User | Admin Credentials |
 |---|---|---|
-| Ubuntu Server 18.04 LTS | arcuser | Uses the default [SSH key pair](https://docs.microsoft.com/azure/virtual-machines/linux/mac-create-ssh-keys) unless specified |
-| Windows Server 2019 | arcuser | Terraform output displays the admin password |
+| Ubuntu Server 18.04 LTS | arcadmin | Uses the default [SSH key pair](https://docs.microsoft.com/azure/virtual-machines/linux/mac-create-ssh-keys) unless specified |
+| Windows Server 2019 | arcadmin | Terraform output displays the admin password |
 
 It will also create a vNet and a custom NSG (using ASGs) to control the ports opened up to the Windows and Linux VMs' public IPs. Note that these VMs are intended for training and demo purpose only and expose ports that should not be exposed for production workloads.
 
@@ -77,4 +77,37 @@ To remove the resources:
 terraform destroy
 ```
 
-> **Note that this will remove the arc-demo resource group and therefore any resources within that resource group (such as connected machine resources) will also be deleted.**
+> **Note that this will remove the arc-hack resource group and therefore any resources within that resource group (such as connected machine resources) will also be deleted.**
+
+## Notable variables
+
+The variables are shown with their default value.
+
+* linux_count = 0
+* linux_prefix = "ubuntu"
+
+    Use in combination to generate an array of linux VM names. If linux_count = 2 then the array = ["ubuntu-01","ubuntu-02"].
+
+* windows_count = 0
+* windows_prefix = "win"
+
+    Does the same for windows VM names. Note that "windows" is not a permitted prefix as it is a trademarked word.
+
+* linux_vm_names = []
+* windows_vm_name = []
+
+    Use these to explicitly set the individual names. Overrides the count and prefix values.
+
+* create_ansible_hosts = false
+
+    Set to true to create a hosts file usable by Ansible. Recommended environment variables:
+
+    ```text
+    export ANSIBLE_HOST_KEY_CHECKING=false
+    export ANSIBLE_INVENTORY=$(pwd)/hosts
+    ```
+
+* resource_group_name = arc-hack
+* location = "UK South"
+* tags = {}
+* admin_username = arcadmin

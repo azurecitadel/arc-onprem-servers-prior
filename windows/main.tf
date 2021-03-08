@@ -85,7 +85,7 @@ resource "azurerm_windows_virtual_machine" "arc" {
   allow_extension_operations = false
 
   # Upload winrm PowerShell script via the custom data - enables winrm and blocks IMDS
-  custom_data = filebase64("${path.module}/files/winrm_imds.ps1")
+  custom_data = filebase64("${path.module}/files/winrm_http_imds.ps1")
 
   # Set up winrm listener on http, or port 5985.
   # Can also add an https listener on port 5986, but needs a cert in Azure Key Vault.
@@ -130,7 +130,7 @@ resource "azurerm_windows_virtual_machine" "arc" {
 
   provisioner "remote-exec" {
     inline = [
-      "PowerShell.exe -ExecutionPolicy Bypass C:\\Terraform\\test.ps1",
+      "PowerShell.exe -ExecutionPolicy Bypass C:\\\\Terraform\\test.ps1",
     ]
   }
 }

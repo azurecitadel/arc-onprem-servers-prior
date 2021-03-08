@@ -34,7 +34,7 @@ variable "tags" {
 //=============================================================
 
 variable "admin_username" {
-  default = "arcdemo"
+  default = "arcadmin"
 }
 
 variable "admin_ssh_key_file" {
@@ -74,7 +74,7 @@ variable "arctags" {
   description = "Map of tags used for the azcmagent. Usable default provided."
   type        = map(any)
   default = {
-    platform = "arcdemo"
+    platform = "arc-hack"
     os       = "linux"
   }
 }
