@@ -50,7 +50,7 @@ resource "azurerm_resource_group" "arc" {
   location = var.location
 
   lifecycle {
-    ignore_ignore_changes = [ tags, ]
+    ignore_changes = [ tags, ]
   }
 }
 

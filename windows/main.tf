@@ -113,7 +113,7 @@ resource "azurerm_windows_virtual_machine" "arc" {
     password = var.admin_password
     https    = false
     insecure = true
-    timeout  = "15m"
+    timeout  = "2m"
   }
 
   provisioner "remote-exec" {
