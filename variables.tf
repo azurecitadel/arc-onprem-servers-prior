@@ -52,3 +52,7 @@ variable "admin_username" {
   type    = string
   default = "arcadmin"
 }
+
+variable "admin_ssh_key_file" {
+  default = "~/.ssh/id_rsa.pub"
+}

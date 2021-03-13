@@ -2,7 +2,7 @@ terraform {
   required_providers {
     azurerm = {
       source  = "hashicorp/azurerm"
-      version = "=2.46.0"
+      version = "~> 2.51.0"
     }
   }
 }
@@ -36,7 +36,7 @@ locals {
     format("%s-%02d", var.linux_prefix, n + 1)
   ]
 
-  windows_vm_names       = length(var.windows_vm_names) > 0 ? var.windows_vm_names : [for n in range(var.windows_count) :
+  windows_vm_names = length(var.windows_vm_names) > 0 ? var.windows_vm_names : [for n in range(var.windows_count) :
     format("%s-%02d", var.windows_prefix, n + 1)
   ]
 
@@ -50,7 +50,7 @@ resource "azurerm_resource_group" "arc" {
   location = var.location
 
   lifecycle {
-    ignore_changes = [ tags, ]
+    ignore_changes = [tags, ]
   }
 }
 
@@ -78,6 +78,13 @@ resource "azuread_service_principal" "arc" {
   application_id = azuread_application.arc.application_id
 }
 */
+
+resource "azurerm_ssh_public_key" "arc" {
+  name                = "arc-hack"
+  resource_group_name = upper(azurerm_resource_group.arcresources.name)
+  location            = azurerm_resource_group.arcresources.location
+  public_key          = file(var.admin_ssh_key_file)
+}
 
 resource "random_pet" "arc" {
   length = 2
@@ -221,10 +228,11 @@ module "linux_vms" {
 
   for_each = toset(local.linux_vm_names)
 
-  name      = each.value
-  dns_label = "arc-${local.uniq}-${each.value}"
-  subnet_id = azurerm_subnet.arc.id
-  asg_id    = azurerm_application_security_group.linux.id
+  name                 = each.value
+  dns_label            = "arc-${local.uniq}-${each.value}"
+  subnet_id            = azurerm_subnet.arc.id
+  asg_id               = azurerm_application_security_group.linux.id
+  admin_ssh_public_key = azurerm_ssh_public_key.arc.public_key
 
   // arc = local.arc
 }

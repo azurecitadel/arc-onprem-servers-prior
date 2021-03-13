@@ -2,7 +2,7 @@ terraform {
   required_providers {
     azurerm = {
       source  = "hashicorp/azurerm"
-      version = "=2.46.0"
+      version = "~> 2.51.0"
     }
   }
 }
@@ -24,6 +24,9 @@ locals {
 
   # Merge the arc object with the new comma delimited tags, if we're connecting
   arc = local.azcmagent_connect ? merge(var.arc, { tags = local.arc_tag_value_string}) : null
+
+  # Accept either admin_ssh_public_key or use a file
+  admin_ssh_public_key = length(var.admin_ssh_public_key) > 0 ? var.admin_ssh_public_key : file(var.admin_ssh_public_key_file)
 }
 
 data "template_cloudinit_config" "multipart" {
@@ -117,6 +120,6 @@ resource "azurerm_linux_virtual_machine" "arc" {
 
   admin_ssh_key {
     username   = var.admin_username
-    public_key = file(var.admin_ssh_key_file)
+    public_key = local.admin_ssh_public_key
   }
 }

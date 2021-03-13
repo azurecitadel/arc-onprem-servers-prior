@@ -37,8 +37,12 @@ variable "admin_username" {
   default = "arcadmin"
 }
 
-variable "admin_ssh_key_file" {
+variable "admin_ssh_public_key_file" {
   default = "~/.ssh/id_rsa.pub"
+}
+
+variable "admin_ssh_public_key" {
+  default = ""
 }
 
 variable "dns_label" {
