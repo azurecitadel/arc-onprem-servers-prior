@@ -14,7 +14,8 @@ output "windows_fqdns" {
 }
 
 output "windows_admin_password" {
-  value = local.windows_admin_password
+  value     = local.windows_admin_password
+  sensitive = true
 }
 
 output "uniq" {
