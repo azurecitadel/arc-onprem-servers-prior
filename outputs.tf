@@ -13,6 +13,11 @@ output "windows_fqdns" {
   name => module.windows_vms[name].fqdn }
 }
 
+output "admin_username" {
+  value     = var.admin_username
+}
+
+
 output "windows_admin_password" {
   value     = local.windows_admin_password
   sensitive = true

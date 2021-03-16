@@ -24,7 +24,13 @@ Operating systems available:
 
 It will also create a vNet and a custom NSG (using ASGs) to control the ports opened up to the Windows and Linux VMs' public IPs. Note that these VMs are intended for training and demo purpose only and expose ports that should not be exposed for production workloads.
 
-The provisioned servers are customised to remove the Azure Agent and to block the internal http endpoint for the Instance Metedata Service (IMDS). They can then be onboarded to Azure by downloading azcmagent and connecting as per the [Azure docs](https://aka.ms/AzureArcDocs).
+## Azure Agent and IMDS Endpoint
+
+The provisioned servers are customised to remove the Azure Agent and to block the internal http endpoint for the Instance Metedata Service (IMDS).
+
+They can then be onboarded to Azure by downloading azcmagent and connecting as per the [Azure docs](https://aka.ms/AzureArcDocs). If the agent and endpoint were visible to the azcmagent installation then it would abort.
+
+You should not need to touch the resources that Terraform creates in the `arc-hack-resources` session. (You wouldn't be able to reset password etc. from the portal or run Custom Script Extensions as these all run on top of the Azure Agent.)
 
 ## Deployment
 
@@ -68,6 +74,12 @@ The provisioned servers are customised to remove the Azure Agent and to block th
     ```
 
     If there are any errors then rerun the `terraform apply` and Terraform should create remaining resources.
+
+    Once everything has been created then `terraform plan` should display
+
+    ```text
+    No changes. Infrastructure is up-to-date.
+    ```
 
 ## Output
 
