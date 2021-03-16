@@ -85,6 +85,8 @@ You should not need to touch the resources that Terraform creates in the `arc-ha
 
 Use `terraform output` to show FQDNs, SSH commands.
 
+> This will only show output if you are in the Terraform directory.
+
 The Windows admin password is a "sensitive value". Use `terraform output windows_admin_password` and the value will be displayed.
 
 ## Removal
