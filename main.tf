@@ -229,6 +229,7 @@ module "linux_vms" {
   for_each = toset(local.linux_vm_names)
 
   name                 = each.value
+  size                 = var.linux_size
   dns_label            = "arc-${local.uniq}-${each.value}"
   subnet_id            = azurerm_subnet.arc.id
   asg_id               = azurerm_application_security_group.linux.id
@@ -246,6 +247,7 @@ module "windows_vms" {
   for_each = toset(local.windows_vm_names)
 
   name           = each.value
+  size           = var.windows_size
   dns_label      = "arc-${local.uniq}-${each.value}"
   subnet_id      = azurerm_subnet.arc.id
   asg_id         = azurerm_application_security_group.windows.id

@@ -5,3 +5,5 @@ linux_prefix = "ubuntu"
 
 windows_count  = 1
 windows_prefix = "win"
+
+create_ansible_hosts = true

@@ -13,6 +13,11 @@ variable "linux_count" {
   default = 0
 }
 
+variable "linux_size" {
+  type    = string
+  default = "Standard_A1_v2"
+}
+
 variable "windows_vm_names" {
   type    = list(string)
   default = []
@@ -26,6 +31,11 @@ variable "windows_prefix" {
 variable "windows_count" {
   type    = number
   default = 0
+}
+
+variable "windows_size" {
+  type    = string
+  default = "Standard_D2s_v3"
 }
 
 variable "create_ansible_hosts" {

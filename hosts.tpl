@@ -1,17 +1,17 @@
-[linux]
+[arc_hack_linux_vms]
 %{ for fqdn in linux_fqdns ~}
 ${fqdn}
 %{ endfor ~}
 
-[linux:vars]
+[arc_hack_linux_vms:vars]
 ansible_user=${username}
 
-[windows]
+[arc_hack_windows_vms]
 %{ for fqdn in windows_fqdns ~}
 ${fqdn}
 %{ endfor ~}
 
-[windows:vars]
+[arc_hack_windows_vms:vars]
 ansible_user=${username}
 ansible_password="${password}"
 ansible_connection=winrm
