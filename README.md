@@ -20,6 +20,8 @@ Operating systems available:
 | Ubuntu Server 18.04 LTS | arcadmin | Uses the default [SSH key pair](https://docs.microsoft.com/azure/virtual-machines/linux/mac-create-ssh-keys) unless specified |
 | Windows Server 2019 | arcadmin | Terraform output displays the admin password |
 
+> You will need an SSH key pair: <https://docs.microsoft.com/azure/virtual-machines/linux/mac-create-ssh-keys>
+
 It will also create a vNet and a custom NSG (using ASGs) to control the ports opened up to the Windows and Linux VMs' public IPs. Note that these VMs are intended for training and demo purpose only and expose ports that should not be exposed for production workloads.
 
 The provisioned servers are customised to remove the Azure Agent and to block the internal http endpoint for the Instance Metedata Service (IMDS). They can then be onboarded to Azure by downloading azcmagent and connecting as per the [Azure docs](https://aka.ms/AzureArcDocs).
