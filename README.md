@@ -67,9 +67,13 @@ The provisioned servers are customised to remove the Azure Agent and to block th
     terraform apply
     ```
 
+    If there are any errors then rerun the `terraform apply` and Terraform should create remaining resources.
+
 ## Output
 
-Use `terraform output` to show FQDNs, SSH commands and the Windows admin password.
+Use `terraform output` to show FQDNs, SSH commands.
+
+The Windows admin password is a "sensitive value". Use `terraform output windows_admin_password` and the value will be displayed.
 
 ## Removal
 
