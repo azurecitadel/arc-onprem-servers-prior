@@ -65,6 +65,10 @@ resource "azurerm_role_assignment" "arc" {
 resource "azurerm_resource_group" "arcresources" {
   name     = "${var.resource_group_name}-resources"
   location = var.location
+
+  lifecycle {
+    ignore_changes = [tags, ]
+  }
 }
 
 // Onboarding service principal

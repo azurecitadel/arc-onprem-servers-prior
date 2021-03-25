@@ -1,3 +1,4 @@
+.azure
 .terraform
 .terraform.lock.hcl
 terraform.tfstate
